@@ -88,6 +88,7 @@ end
 
 local emotesData = {}
 local currentPage = 1
+local pageLock = false
 local itemsPerPage = 8
 local totalPages = 1
 local filteredEmotes = {}
@@ -104,8 +105,6 @@ local currentCharacter = nil
 local isGUICreated = false
 local speedEmoteEnabled = false
 local speedEmoteConfigFile = "SpeedEmoteConfig.json"
-
-local pageLock = false
 
 local Under, UIListLayout, _1left, _9right, _4pages, _3TextLabel, _2Routenumber, Top, EmoteWalkButton, UICorner1,
     UIListLayout_2, UICorner, Search, Favorite, UICorner2, UICorner_2, SpeedEmote, UICorner_4, SpeedBox, UICorner_5, Changepage,
@@ -1519,57 +1518,45 @@ local function searchAnimations(searchTerm)
 end
 
 local function goToPage(pageNumber)
-    if pageLock then return end
-    pageLock = true
-
-    pageNumber = math.clamp(pageNumber, 1, totalPages)
-    currentPage = pageNumber
-
-    updatePageDisplay()
-    updateEmotes()
-
-    task.delay(0.15, function()
-        pageLock = false
-    end)
-end
+    if pageNumber < 1 then
+        currentPage = 1
+    elseif pageNumber > totalPages then
+        currentPage = totalPages
+    else
+        currentPage = pageNumber
+    end
     updatePageDisplay()
     updateEmotes()
 end
 
 local function previousPage()
-    if pageLock then return end
-    pageLock = true
-
-    if currentPage > 1 then
-        currentPage -= 1
+    if currentPage <= 1 then
+        currentPage = totalPages
+    else
+        if not pageLock then
+        pageLock = true
+        currentPage = currentPage - 1
+        task.delay(0.15, function()
+            pageLock = false
+        end)
     end
-
-    updatePageDisplay()
-    updateEmotes()
-
-    task.delay(0.15, function()
-        pageLock = false
-    end)
-end
+    end
     updatePageDisplay()
     updateEmotes()
 end
 
 local function nextPage()
-    if pageLock then return end
-    pageLock = true
-
-    if currentPage < totalPages then
-        currentPage += 1
+    if currentPage >= totalPages then
+        currentPage = 1
+    else
+        if not pageLock then
+        pageLock = true
+        currentPage = currentPage + 1
+        task.delay(0.15, function()
+            pageLock = false
+        end)
     end
-
-    updatePageDisplay()
-    updateEmotes()
-
-    task.delay(0.15, function()
-        pageLock = false
-    end)
-end
+    end
     updatePageDisplay()
     updateEmotes()
 end
