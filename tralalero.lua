@@ -1518,6 +1518,9 @@ local function searchAnimations(searchTerm)
 end
 
 local function goToPage(pageNumber)
+    if pageLock then return end
+    pageLock = true
+
     if pageNumber < 1 then
         currentPage = 1
     elseif pageNumber > totalPages then
@@ -1525,40 +1528,49 @@ local function goToPage(pageNumber)
     else
         currentPage = pageNumber
     end
+
     updatePageDisplay()
     updateEmotes()
+
+    task.delay(0.15, function()
+        pageLock = false
+    end)
 end
 
 local function previousPage()
+    if pageLock then return end
+    pageLock = true
+
     if currentPage <= 1 then
         currentPage = totalPages
     else
-        if not pageLock then
-        pageLock = true
         currentPage = currentPage - 1
-        task.delay(0.15, function()
-            pageLock = false
-        end)
     end
-    end
+
     updatePageDisplay()
     updateEmotes()
+
+    task.delay(0.15, function()
+        pageLock = false
+    end)
 end
 
 local function nextPage()
+    if pageLock then return end
+    pageLock = true
+
     if currentPage >= totalPages then
         currentPage = 1
     else
-        if not pageLock then
-        pageLock = true
         currentPage = currentPage + 1
-        task.delay(0.15, function()
-            pageLock = false
-        end)
     end
-    end
+
     updatePageDisplay()
     updateEmotes()
+
+    task.delay(0.15, function()
+        pageLock = false
+    end)
 end
 
 local function stopCurrentEmote()
